@@ -8,7 +8,9 @@ export interface HitCounterProps {
 }
 
 export class HitCounter extends Construct {
+    // Exposes resources
     public readonly handler: Function;
+    public readonly table: Table;
     
     constructor(scope: Construct, id: string, props: HitCounterProps) {
         super(scope, id);
@@ -16,6 +18,8 @@ export class HitCounter extends Construct {
         const table = new Table(this, "Hits", {
             partitionKey: { name: "path", type: AttributeType.STRING},
         });
+
+        this.table = table;
 
         this.handler = new Function(this, "HitCounterHandler", {
             runtime: Runtime.NODEJS_22_X,
@@ -25,7 +29,12 @@ export class HitCounter extends Construct {
                 DOWNSTREAM_FUNCTION_NAME: props.downstream.functionName,
                 HITS_TABLE_NAME: table.tableName,
             }
-        })
+        });
 
+        // Lambda role to read/write on DynamoDB table
+        table.grantReadWriteData(this.handler);
+
+        // Lambda permission to the downstream function
+        props.downstream.grantInvoke(this.handler);
     }
 }

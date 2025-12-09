@@ -1,6 +1,7 @@
 import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
-import { Duration, Stack, StackProps } from 'aws-cdk-lib/core';
+import { Stack, StackProps } from 'aws-cdk-lib/core';
+import { TableViewer } from "cdk-dynamo-table-viewer";
 import { Construct } from 'constructs';
 import { HitCounter } from './hitcounter';
 
@@ -22,6 +23,11 @@ export class CdkWorkshopStack extends Stack {
     // AWS API Gateway Configuration
     const gateway = new LambdaRestApi(this, "Endpoint", {
       handler: helloWithCounter.handler,
+    });
+
+    const tv = new TableViewer(this, 'ViewHitCounter', {
+      title: 'Hello Hits',
+      table: helloWithCounter.table,
     });
   }
 }
