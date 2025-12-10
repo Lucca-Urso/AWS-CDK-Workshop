@@ -17,7 +17,7 @@ export class CdkWorkshopStack extends Stack {
     });
 
     const helloWithCounter = new HitCounter(this, "HelloHitCounter", {
-      downstream: hello,
+      downstream: hello, // Configured as downstream
     });
 
     // AWS API Gateway Configuration
